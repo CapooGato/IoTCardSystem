@@ -1,4 +1,4 @@
-package com.example.CardScanner.card;
+package com.example.CardScanner.card.entity;
 
 import com.example.CardScanner.user.User;
 import jakarta.persistence.*;

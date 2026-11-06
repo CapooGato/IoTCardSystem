@@ -1,6 +1,6 @@
 package com.example.CardScanner.shared;
 
-import com.example.CardScanner.card.ResourceNotFoundException;
+import com.example.CardScanner.card.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
