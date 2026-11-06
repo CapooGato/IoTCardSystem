@@ -1,6 +1,6 @@
 package com.example.CardScanner.user;
 
-import com.example.CardScanner.card.Card;
+import com.example.CardScanner.card.entity.Card;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

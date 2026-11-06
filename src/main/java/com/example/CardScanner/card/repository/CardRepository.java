@@ -1,5 +1,6 @@
-package com.example.CardScanner.card;
+package com.example.CardScanner.card.repository;
 
+import com.example.CardScanner.card.entity.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

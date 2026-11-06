@@ -1,4 +1,4 @@
-package com.example.CardScanner.card;
+package com.example.CardScanner.card.entity;
 
 public enum CardAccessLevel {
     STANDARD_OFFICE,
