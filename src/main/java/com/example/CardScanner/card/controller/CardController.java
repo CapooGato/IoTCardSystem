@@ -1,8 +1,8 @@
 package com.example.CardScanner.card.controller;
 
 import com.example.CardScanner.card.dto.CardAccessLevelRequest;
+import com.example.CardScanner.card.dto.CardDTO;
 import com.example.CardScanner.card.dto.CardStatusRequest;
-import com.example.CardScanner.card.entity.Card;
 import com.example.CardScanner.card.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,17 +21,17 @@ public class CardController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Card> createCard(@RequestBody CardAccessLevelRequest cardAccessLevelRequest) {
+    public ResponseEntity<CardDTO> createCard(@RequestBody CardAccessLevelRequest cardAccessLevelRequest) {
         return new ResponseEntity<>(service.saveCard(cardAccessLevelRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Card>> getCards() {
+    public ResponseEntity<List<CardDTO>> getCards() {
         return new ResponseEntity<>(service.getCards(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Card> getCardById(@PathVariable("id") Long id) {
+    public ResponseEntity<CardDTO> getCardById(@PathVariable("id") Long id) {
         return new ResponseEntity<>(service.getCardById(id), HttpStatus.OK);
     }
 
@@ -42,12 +42,12 @@ public class CardController {
     }
 
     @PostMapping("/{id}/prolong")
-    public ResponseEntity<Card> updateCardValidationDateById(@PathVariable("id") Long id) {
+    public ResponseEntity<CardDTO> updateCardValidationDateById(@PathVariable("id") Long id) {
         return new ResponseEntity<>(service.updateValidToById(id), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/status")
-    public ResponseEntity<Card> updateCardStatus(@PathVariable("id") Long id,
+    public ResponseEntity<CardDTO> updateCardStatus(@PathVariable("id") Long id,
                                                  @RequestBody CardStatusRequest cardStatusRequest) {
         return new ResponseEntity<>(service.updateCardStatus(cardStatusRequest), HttpStatus.OK);
     }

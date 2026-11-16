@@ -1,15 +1,14 @@
 package com.example.CardScanner.user.srvice;
 
-import com.example.CardScanner.card.dto.CardAccessLevelRequest;
-import com.example.CardScanner.card.dto.CardDTO;
 import com.example.CardScanner.card.entity.Card;
 import com.example.CardScanner.card.entity.CardStatus;
-import com.example.CardScanner.card.exception.CardNotActiveException;
+import com.example.CardScanner.card.exception.CardAlreadyAssignedException;
+import com.example.CardScanner.card.repository.CardRepository;
 import com.example.CardScanner.shared.ResourceNotFoundException;
-import com.example.CardScanner.card.service.CardService;
 import com.example.CardScanner.user.dto.UserCreateRequest;
 import com.example.CardScanner.user.dto.UserDTO;
 import com.example.CardScanner.user.entity.User;
+import com.example.CardScanner.user.mapper.UserMapper;
 import com.example.CardScanner.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,52 +19,58 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final CardService cardService;
+    private final CardRepository cardRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, CardService cardService) {
+    public UserService(UserRepository userRepository, CardRepository cardRepository) {
         this.userRepository = userRepository;
-        this.cardService = cardService;
+        this.cardRepository = cardRepository;
     }
 
-    public User saveUser(UserCreateRequest request){
+    public UserDTO saveUser(UserCreateRequest request){
         User user = User.builder()
                 .login(request.getLogin())
                 .password(request.getPassword())
                 .build();
-        return userRepository.save(user);
+        return UserMapper.toDto(userRepository.save(user));
     }
 
-//    public UserDTO createCardForUser(Long id, CardAccessLevelRequest cardAccessLevelRequest){
-//        User user = userRepository.findById(id).orElseThrow(
-//                () -> new ResourceNotFoundException("User id not found"));
-//        Card card = cardService.createCard(cardAccessLevelRequest.getAccessLevel());
-//        cardService.setUserToCard(card.getId(), user.getId());
-//
-//        CardDTO cardDTO = CardDTO.builder()
-//                .id(card.getId())
-//                .cardUID(card.getCardUID())
-//                .userId(user.getId())
-//                .status(card.getStatus())
-//                .accessLevel(card.getAccessLevel())
-//                .validTo(card.getValidTo())
-//                .build();
-//
-//        return UserDTO.builder()
-//                .id(user.getId())
-//                .login(user.getLogin())
-//                .password(user.getPassword())
-//                .cardDTO(cardDTO)
-//                .build();
-//    }
+    public UserDTO addCardForUser(Long id, Long cardId){
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("User id not found."));
 
-    public User getUserById(Long id){
-        return userRepository.findById(id).orElseThrow(
+        if(user.getCard() != null){
+            throw new CardAlreadyAssignedException("User already has a card.");
+        }
+
+        Card card = cardRepository.findById(cardId).orElseThrow(
+                () -> new ResourceNotFoundException("Card id not found."));
+
+        if(card.getStatus().equals(CardStatus.ACTIVE)){
+            throw new CardAlreadyAssignedException("Card already active and in use.");
+        }
+
+        user.setCard(card);
+        userRepository.save(user);
+
+        return UserDTO.builder()
+                .id(user.getId())
+                .login(user.getLogin())
+                .password(user.getPassword())
+                .cardId(card.getId())
+                .build();
+    }
+
+    public UserDTO getUserById(Long id){
+        User user = userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User id not found"));
+        return UserMapper.toDto(user);
     }
 
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    public List<UserDTO> getUsers(){
+        return userRepository.findAll().stream()
+                .map(UserMapper::toDto)
+                .toList();
     }
 
     public void deleteUserById(Long id){

@@ -1,6 +1,5 @@
 package com.example.CardScanner.user.dto;
 
-import com.example.CardScanner.card.dto.CardDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +13,5 @@ public class UserDTO {
     private Long id;
     private String login;
     private String password;
-    private CardDTO cardDTO;
+    private Long cardId;
 }
