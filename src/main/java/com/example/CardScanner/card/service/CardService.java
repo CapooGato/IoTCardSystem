@@ -1,11 +1,16 @@
 package com.example.CardScanner.card.service;
 
 import com.example.CardScanner.card.dto.CardAccessLevelRequest;
+import com.example.CardScanner.card.dto.CardDTO;
 import com.example.CardScanner.card.dto.CardStatusRequest;
 import com.example.CardScanner.card.entity.Card;
+import com.example.CardScanner.card.entity.CardAccessLevel;
 import com.example.CardScanner.card.entity.CardStatus;
-import com.example.CardScanner.card.exception.ResourceNotFoundException;
+import com.example.CardScanner.card.mapper.CardMapper;
+import com.example.CardScanner.shared.ResourceNotFoundException;
 import com.example.CardScanner.card.repository.CardRepository;
+import com.example.CardScanner.user.entity.User;
+import com.example.CardScanner.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,43 +23,62 @@ import java.util.UUID;
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public CardService(CardRepository cardRepository) {
+    public CardService(CardRepository cardRepository, UserRepository userRepository) {
         this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
     }
 
-    public Card saveCard(CardAccessLevelRequest cardAccessLevelRequest){
-        Card card = Card.builder()
+    public CardDTO saveCard(CardAccessLevelRequest request){
+        Card card = generateCard(request.getAccessLevel());
+        cardRepository.save(card);
+        return CardMapper.toDto(card);
+    }
+
+    private Card generateCard(CardAccessLevel accessLevel){
+       return Card.builder()
                 .cardUID(UUID.randomUUID())
-                .status(CardStatus.ACTIVE)
-                .accessLevel(cardAccessLevelRequest.getAccessLevel())
+                .status(CardStatus.INACTIVE)
+                .accessLevel(accessLevel)
                 .validTo(LocalDateTime.now(ZoneId.systemDefault()).plusMonths(6))
                 .build();
-        return cardRepository.save(card);
+    }
+    public CardDTO getCardById(Long id){
+        Card card = cardRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Card id not found."));
+        return CardMapper.toDto(card);
     }
 
-    public Card getCardById(Long id){
-        return cardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Card id not found"));
+    public void setUserToCard(Long cardId, Long userId){
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User id not found"));
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Card id not found."));
+        card.setUser(user);
+        cardRepository.save(card);
     }
 
-    public List<Card> getCards(){
-        return cardRepository.findAll();
+    public List<CardDTO> getCards(){
+        return cardRepository.findAll().stream()
+                .map(CardMapper::toDto)
+                .toList();
     }
 
     public void deleteCardById(Long id){
         cardRepository.deleteById(id);
     }
 
-    public Card updateValidToById(Long id){
+    public CardDTO updateValidToById(Long id){
         Card card  = cardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Card id not found"));
         card.setValidTo(LocalDateTime.now(ZoneId.systemDefault()).plusMonths(6));
-        return cardRepository.save(card);
+        return CardMapper.toDto(cardRepository.save(card));
     }
 
-    public Card updateCardStatus(CardStatusRequest cardStatusRequest){
-        Card card  = cardRepository.findById(cardStatusRequest.getId()).orElseThrow(() -> new ResourceNotFoundException("Card id not found"));
-        card.setStatus(cardStatusRequest.getStatus());
-        return cardRepository.save(card);
+    public CardDTO updateCardStatus(CardStatusRequest request){
+        Card card  = cardRepository.findById(request.getId()).orElseThrow(() -> new ResourceNotFoundException("Card id not found"));
+        card.setStatus(request.getStatus());
+        return CardMapper.toDto(cardRepository.save(card));
     }
 }

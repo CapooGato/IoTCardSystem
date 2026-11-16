@@ -1,6 +1,6 @@
 package com.example.CardScanner.card.entity;
 
-import com.example.CardScanner.user.User;
+import com.example.CardScanner.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Card {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private UUID cardUID;
 
