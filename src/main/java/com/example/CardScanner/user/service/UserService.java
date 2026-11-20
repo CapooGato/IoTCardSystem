@@ -1,4 +1,4 @@
-package com.example.CardScanner.user.srvice;
+package com.example.CardScanner.user.service;
 
 import com.example.CardScanner.card.entity.Card;
 import com.example.CardScanner.card.entity.CardStatus;

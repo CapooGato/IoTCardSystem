@@ -2,7 +2,7 @@ package com.example.CardScanner.user.controller;
 
 import com.example.CardScanner.user.dto.UserCreateRequest;
 import com.example.CardScanner.user.dto.UserDTO;
-import com.example.CardScanner.user.srvice.UserService;
+import com.example.CardScanner.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
